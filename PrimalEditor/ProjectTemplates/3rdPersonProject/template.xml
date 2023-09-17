@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ProjectTemplate xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.datacontract.org/2004/07/PrimalEditor.GameProject">
+  <Folders xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+    <d2p1:string>.Primal</d2p1:string>
+    <d2p1:string>Content</d2p1:string>
+    <d2p1:string>GameCode</d2p1:string>
+  </Folders>
+  <ProjectFile>project.primal</ProjectFile>
+  <ProjectType>3rd Person Project</ProjectType>
+</ProjectTemplate>

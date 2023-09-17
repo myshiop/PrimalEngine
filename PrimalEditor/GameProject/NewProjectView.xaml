@@ -4,21 +4,44 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PrimalEditor.GameProject"
-             mc:Ignorable="d" 
+             mc:Ignorable="d" Width="800"
+             d:DataContext="{d:DesignInstance Type=local:NewProject, IsDesignTimeCreatable=True}"
              d:DesignHeight="450" d:DesignWidth="800">
-    <StackPanel Background="Wheat">
+    <UserControl.DataContext>
+        <local:NewProject/>
+    </UserControl.DataContext>
+
+    <StackPanel Background="White">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <ListBox Width="195" Height="250"/>
-            <Border Width="400" Height="250" Margin="5, 0, 0, 0"/>
+            <ListBox x:Name="templateListBox" Width="195" Height="250" ItemsSource="{Binding ProjectTemplates}" SelectedItem="{Binding SelectTemplate}" SelectedIndex="0">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="{Binding Icon}" Width="20" Height="20"/>
+                            <TextBlock Text="{Binding ProjectType}" Margin="5, 0, 0, 0"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <Border Width="400" Height="250" Margin="5, 0, 0, 0">
+                <Border.Background>
+                    <ImageBrush ImageSource="{Binding Path=SelectedItem.Screenshot, ElementName=templateListBox}"/>
+                </Border.Background>
+            </Border>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 30, 0, 0">
             <TextBlock Text="Name" Width="50"/>
-            <TextBox Width="550"/>
+            <TextBox Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}" Width="550"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 5, 0, 0">
             <TextBlock Text="Path" Width="50"/>
-            <TextBox Width="500"/>
+            <TextBox Text="{Binding ProjectPath, UpdateSourceTrigger=PropertyChanged}" Width="500"/>
             <Button Content="Browser" Width="45" Margin="5, 0, 0, 0"/>
         </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 30, 0, 0">
+            <Button Content="Create" IsEnabled="{Binding IsVaild}" Command="{Binding CreateButtonCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}" Width="96" IsDefault="False"/>
+            <Button Content="Exit" Command="{Binding ExitButtonCommand}" Width="96" Margin="30, 0, 0, 0" IsCancel="True"/>
+        </StackPanel>
+        <TextBlock Text="{Binding ErrorMsg}" HorizontalAlignment="Center"/>
     </StackPanel>
 </UserControl>
