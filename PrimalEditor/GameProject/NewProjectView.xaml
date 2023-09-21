@@ -13,7 +13,7 @@
 
     <StackPanel Background="White">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <ListBox x:Name="templateListBox" Width="195" Height="250" ItemsSource="{Binding ProjectTemplates}" SelectedItem="{Binding SelectTemplate}" SelectedIndex="0">
+            <ListBox x:Name="templateListBox" Width="195" Height="250" ItemsSource="{Binding ProjectTemplates}" SelectedIndex="0">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -39,8 +39,8 @@
             <Button Content="Browser" Width="45" Margin="5, 0, 0, 0"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 30, 0, 0">
-            <Button Content="Create" IsEnabled="{Binding IsVaild}" Command="{Binding CreateButtonCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}" Width="96" IsDefault="False"/>
-            <Button Content="Exit" Command="{Binding ExitButtonCommand}" Width="96" Margin="30, 0, 0, 0" IsCancel="True"/>
+            <Button Content="Create" IsEnabled="{Binding IsValid}" Click="OnCreate_Button_Click" Width="96" IsDefault="False"/>
+            <Button Content="Exit" Width="96" Margin="30, 0, 0, 0" IsCancel="True"/>
         </StackPanel>
         <TextBlock Text="{Binding ErrorMsg}" HorizontalAlignment="Center"/>
     </StackPanel>

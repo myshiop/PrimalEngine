@@ -2,6 +2,7 @@
 <Game xmlns:i="http://www.w3.org/2001/XMLSchema-instance" z:Id="i1" xmlns:z="http://schemas.microsoft.com/2003/10/Serialization/" xmlns="http://schemas.datacontract.org/2004/07/PrimalEditor.GameProject">
   <Name>{0}</Name>
   <Path>{1}</Path>
+  <ActiveScene z:Id="i2" />
   <Scenes>
     <Scene z:Id="i2">
       <Name>Default Scene</Name>

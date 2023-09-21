@@ -25,7 +25,7 @@ namespace PrimalEditor.GameProject
         public string ProjectPath { get; set; }
         [DataMember]
         public DateTime Date { get; set; }
-        public string FullPath => $"{ProjectPath}/{ProjectName}{Project.Extension}";
+        public string FullPath => $"{ProjectPath}/{ProjectName}{Project.Extention}";
         public byte[] Icon { get; set; }
         public byte[] Screenshot { get; set; }
     }
@@ -142,7 +142,7 @@ namespace PrimalEditor.GameProject
             }
             WriteProjectData();
 
-            return null;            
+            return Project.Load(project.FullPath);            
         }
 
         private static void WriteProjectData()

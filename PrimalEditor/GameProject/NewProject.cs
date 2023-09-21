@@ -27,7 +27,7 @@ namespace PrimalEditor.GameProject
 		public byte[] Icon { get; set; }
 		public byte[] Screenshot { get; set; }
 		public string IconFilePath { get; set; }
-		public string ScreenshotPath { get; set; }
+		public string ScreenshotFilePath { get; set; }
 		public string ProjectFilePath { get; set; }
 
     }
@@ -66,12 +66,12 @@ namespace PrimalEditor.GameProject
 			}
 		}
 
-		private bool m_isVaild;
+		private bool m_isValid;
 
-		public bool IsVaild
+		public bool IsValid
 		{
-			get { return m_isVaild; }
-			set { m_isVaild = value; OnPropertyChanged(); }
+			get { return m_isValid; }
+			set { m_isValid = value; OnPropertyChanged(); }
 		}
 
 		private string m_errorMsg;
@@ -102,19 +102,9 @@ namespace PrimalEditor.GameProject
             get { return m_projectTemplates; }
         }
 
-		public ICommand CreateButtonCommand { get; set; }
-		public ICommand ExitButtonCommand { get; set; }
-
         public NewProject()
-        {
-			InitCommands();
+        {			
 			ReadLocalProjectTemplates();
-        }
-
-		public void InitCommands()
-		{
-			CreateButtonCommand = new RelayCommand(CreateProject);
-            ExitButtonCommand = new RelayCommand(Exit);
         }
 
 		private void ReadLocalProjectTemplates()
@@ -128,8 +118,8 @@ namespace PrimalEditor.GameProject
                     var template = Serializer.FromFile<ProjectTemplate>(templateFile);
 					template.IconFilePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(templateFile), "Icon.png"));
 					template.Icon = File.ReadAllBytes(template.IconFilePath);
-					template.ScreenshotPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(templateFile), "Screenshot.png"));
-					template.Screenshot = File.ReadAllBytes(template.ScreenshotPath);
+					template.ScreenshotFilePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(templateFile), "Screenshot.png"));
+					template.Screenshot = File.ReadAllBytes(template.ScreenshotFilePath);
 					template.ProjectFilePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(templateFile), template.ProjectFile));
 
                     m_projectTemplates.Add(template);
@@ -142,68 +132,52 @@ namespace PrimalEditor.GameProject
             }
         }
 
-		private void CreateProject(object parameter)
+		public string CreateProject(ProjectTemplate template)
 		{
-            var projectPath = CreateProjectTemplate();
-			bool dialogResult = false;
-            if (!string.IsNullOrEmpty(projectPath))
+            ValidateProjectPath();
+            if (!IsValid)
             {
-				dialogResult = true;           
-				var project = OpenProject.Open(new ProjectData() { ProjectName = ProjectName, ProjectPath = projectPath });
-            }
-            var userControl = parameter as UserControl;
-            if (userControl != null)
-            {
-                var window = Window.GetWindow(userControl);
-                if (window != null)
-                {
-                    window.DialogResult = dialogResult;
-                    window.Close();
-                }
-            }
-        }
-
-		private string CreateProjectTemplate()
-		{			
-			ValidateProjectPath();
-
-			if (!IsVaild)
-			{
                 return string.Empty;
-			}
-            if (!Path.EndsInDirectorySeparator(ProjectPath))
+            }
+            var path = ProjectPath;
+            if (!path.EndsWith(@"\"))
             {
-                ProjectPath += Path.DirectorySeparatorChar;
+                path += @"\";
             }
-			var path = $@"{ProjectPath}{ProjectName}";
+            path += $@"{ProjectName}\";
 
-			try
-			{
-				if(!Directory.Exists(path))
-				{
-					Directory.CreateDirectory(path);
+            try
+            {
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                    foreach (var folder in template.Folders)
+                    {
+                        Directory.CreateDirectory(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(path), folder)));
+                    }
                 }
-				foreach(var floder in SelectTemplate.Folders)
-				{
-					Directory.CreateDirectory(Path.Combine(path, floder));
-				}
-				var dirInfo = new DirectoryInfo(Path.Combine(path, ".Primal"));
-				dirInfo.Attributes = FileAttributes.Hidden;
-				File.Copy(SelectTemplate.IconFilePath, Path.Combine(dirInfo.FullName, "Icon.png"), true);
-				File.Copy(SelectTemplate.ScreenshotPath, Path.Combine(dirInfo.FullName, "Screenshot.png"), true);
+                var dirInfo = new DirectoryInfo(path + @".primal\");
+                dirInfo.Attributes |= FileAttributes.Hidden;
+                File.Copy(template.IconFilePath, Path.GetFullPath(Path.Combine(dirInfo.FullName, "icon.png")));
+                File.Copy(template.ScreenshotFilePath, Path.GetFullPath(Path.Combine(dirInfo.FullName, "screenshot.png")));
 
-				var projectXml = File.ReadAllText(SelectTemplate.ProjectFilePath);
-				projectXml = string.Format(projectXml, ProjectName, path);
-				string projectPath = Path.Combine(path, ProjectName + Project.Extension);
-				File.WriteAllText(projectPath, projectXml);
+                //var project = new Project(ProjectName, path);
+                //Serializer.ToFile(project, path + $"{ProjectName}" + Project.Extention); b
+                var projectXml = File.ReadAllText(template.ProjectFilePath);
+                projectXml = String.Format(projectXml, ProjectName, path);
+                var projectPath = Path.GetFullPath(Path.Combine(path, $"{ProjectName}{Project.Extention}"));
+                File.WriteAllText(projectPath, projectXml);
 
-				return path;
+                //CreateMSVCSolution(template, path);
+
+                return path;
             }
-			catch(Exception ex)
-			{
-				Debug.WriteLine(ex.Message);
-				return string.Empty;
-			}
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                //Logger.Log(MessageType.Error, $"Failed to create project {ProjectName} in {path} using template {template.ProjectType}");
+                throw;
+            }
         }
 
 		private void Exit(object parameter)
@@ -220,7 +194,7 @@ namespace PrimalEditor.GameProject
             }
 			path += $@"{ProjectName}";
 
-			IsVaild = false;
+			IsValid = false;
 			if (string.IsNullOrWhiteSpace(ProjectName.Trim()))
 			{
 				ErrorMsg = "Project name can't be empty.";
@@ -244,10 +218,10 @@ namespace PrimalEditor.GameProject
             else
 			{
 				ErrorMsg = string.Empty;
-                IsVaild = true;
+                IsValid = true;
             }
 
-			return IsVaild;
+			return IsValid;
 		}
     }
 }
